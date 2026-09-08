@@ -1,0 +1,1 @@
+const ADMINS=(import.meta.env.VITE_ADMIN_EMAILS||"").split(",").map(x=>x.trim().toLowerCase()).filter(Boolean); export function isAdminUser(u){return u?.role==="admin" || ADMINS.includes(String(u?.email||"").toLowerCase())}

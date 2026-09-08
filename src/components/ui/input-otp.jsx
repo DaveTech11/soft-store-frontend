@@ -1,0 +1,1 @@
+export function InputOTP({value,onChange,maxLength=6,...props}){return <input value={value||""} onChange={e=>onChange?.(e.target.value)} maxLength={maxLength} {...props}/>}; export function InputOTPGroup({children}){return <div>{children}</div>}; export function InputOTPSlot({index}){return <input aria-label={`Digit ${index+1}`} maxLength={1}/>};

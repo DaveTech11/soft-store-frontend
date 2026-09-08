@@ -1,0 +1,1 @@
+export default function EmptyState(){return <div className="py-20 text-center text-neutral-500"><h2 className="text-xl text-white">How can we help?</h2><p>Start a new conversation.</p></div>}

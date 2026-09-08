@@ -1,0 +1,1 @@
+export default function ImageLoading(){return <div className="animate-pulse rounded-xl bg-white/5 p-8">Generating image…</div>}

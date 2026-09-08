@@ -1,0 +1,1 @@
+export default function GoogleIcon(){return <span aria-hidden="true" style={{fontWeight:800}}>G</span>}

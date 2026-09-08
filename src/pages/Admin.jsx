@@ -58,16 +58,21 @@ function AppDownloadCard() {
       return;
     }
     setSaving(true);
-    const saved = await saveAppConfig({
-      apkUrl: config.apkUrl,
-      version: config.version,
-      sizeLabel: config.sizeLabel,
-      iosAvailable: config.iosAvailable,
-      iosUrl: config.iosUrl,
-    });
-    setConfig(saved);
-    setSaving(false);
-    toast({ title: "Download settings saved", description: "The /download page now reflects these changes." });
+    try {
+      const saved = await saveAppConfig({
+        apkUrl: config.apkUrl,
+        version: config.version,
+        sizeLabel: config.sizeLabel,
+        iosAvailable: config.iosAvailable,
+        iosUrl: config.iosUrl,
+      });
+      setConfig(saved);
+      toast({ title: "Download settings saved", description: "The /download page now reflects these changes." });
+    } catch (err) {
+      toast({ title: "Couldn't save", description: err.message });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleCopy = async () => {
@@ -90,17 +95,25 @@ function AppDownloadCard() {
       notes: newNoteText.split("\n").map((n) => n.trim()).filter(Boolean),
     };
     const changelog = [entry, ...(config.changelog || [])];
-    const saved = await saveAppConfig({ changelog });
-    setConfig(saved);
-    setNewNoteVersion("");
-    setNewNoteText("");
-    toast({ title: "Release note added" });
+    try {
+      const saved = await saveAppConfig({ changelog });
+      setConfig(saved);
+      setNewNoteVersion("");
+      setNewNoteText("");
+      toast({ title: "Release note added" });
+    } catch (err) {
+      toast({ title: "Couldn't save", description: err.message });
+    }
   };
 
   const handleDeleteNote = async (idx) => {
     const changelog = (config.changelog || []).filter((_, i) => i !== idx);
-    const saved = await saveAppConfig({ changelog });
-    setConfig(saved);
+    try {
+      const saved = await saveAppConfig({ changelog });
+      setConfig(saved);
+    } catch (err) {
+      toast({ title: "Couldn't save", description: err.message });
+    }
   };
 
   return (

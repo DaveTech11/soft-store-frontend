@@ -12,7 +12,23 @@
 // change.
 // ---------------------------------------------------------------------------
 
-const CONFIG_ENDPOINT = "/api/app-config/soft-store-download";
+// ---------------------------------------------------------------------------
+// Everything about the "download the app" experience — the MediaFire link,
+// version/size labels, changelog, iOS availability, and a download counter —
+// lives in one config object so the Admin dashboard can edit all of it
+// without touching code.
+//
+// It's backed by a small live server (soft-store-backend, on Render) with
+// its own Postgres database, so every visitor sees the same config. If that
+// server is ever unreachable, it falls back to this browser's local storage
+// so the page still works.
+// ---------------------------------------------------------------------------
+
+const BACKEND_URL = "https://soft-store-backend.onrender.com";
+const CONFIG_ENDPOINT = `${BACKEND_URL}/api/app-config/soft-store-download`;
+// Set in the frontend's environment (e.g. .env: VITE_ADMIN_KEY=...) — only
+// needed for saving from the Admin dashboard; reading is public.
+const ADMIN_KEY = import.meta.env.VITE_ADMIN_KEY || "";
 const LOCAL_STORAGE_KEY = "softstore_app_config";
 
 const DEFAULT_CONFIG = {
@@ -49,11 +65,11 @@ function writeLocal(config) {
 /** Loads the current app-download config (MediaFire link, version, changelog, etc). */
 export async function getAppConfig() {
   try {
-    const res = await fetch(CONFIG_ENDPOINT, { credentials: "include" });
+    const res = await fetch(CONFIG_ENDPOINT);
     if (res.ok) {
       const data = await res.json();
-      const merged = { ...DEFAULT_CONFIG, ...(data.config || data) };
-      writeLocal(merged); // keep a local mirror as an offline fallback
+      const merged = { ...DEFAULT_CONFIG, ...data };
+      writeLocal(merged); // keep a local mirror in case the server is briefly unreachable
       return merged;
     }
     throw new Error(`status ${res.status}`);
@@ -62,29 +78,47 @@ export async function getAppConfig() {
   }
 }
 
-/** Merges `patch` into the config and saves it (backend first, local fallback). */
+/**
+ * Merges `patch` into the config and saves it to the live backend.
+ * Throws if the save is rejected (e.g. wrong admin key) so the Admin UI can
+ * surface that — it only silently falls back to local storage when the
+ * server itself is unreachable.
+ */
 export async function saveAppConfig(patch) {
   const current = await getAppConfig();
   const next = { ...current, ...patch, updatedAt: new Date().toISOString() };
   try {
     const res = await fetch(CONFIG_ENDPOINT, {
       method: "PUT",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(next),
+      headers: { "Content-Type": "application/json", "x-admin-key": ADMIN_KEY },
+      body: JSON.stringify(patch),
     });
-    if (!res.ok) throw new Error(`status ${res.status}`);
-  } catch {
-    // no backend endpoint yet — that's fine, local mirror below still works
+    if (res.ok) {
+      const saved = await res.json();
+      writeLocal(saved);
+      return saved;
+    }
+    if (res.status === 401) {
+      throw new Error("Save rejected: missing or wrong admin key (set VITE_ADMIN_KEY).");
+    }
+    throw new Error(`Save failed (status ${res.status})`);
+  } catch (err) {
+    if (err.message?.startsWith("Save rejected") || err.message?.startsWith("Save failed")) throw err;
+    // network-level failure (server unreachable) — fall back to local so the UI still works
+    writeLocal(next);
+    return next;
   }
-  writeLocal(next);
-  return next;
 }
 
 /** Call whenever someone starts a download (button click or QR scan). */
 export async function incrementDownloadCount() {
   const current = await getAppConfig();
-  return (await saveAppConfig({ downloadCount: (current.downloadCount || 0) + 1 })).downloadCount;
+  try {
+    return (await saveAppConfig({ downloadCount: (current.downloadCount || 0) + 1 })).downloadCount;
+  } catch {
+    // counting a download should never block or break the actual download
+    return current.downloadCount || 0;
+  }
 }
 
 export function isValidMediaFireUrl(url) {
