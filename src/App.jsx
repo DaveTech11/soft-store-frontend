@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
 import Chat from './pages/Chat';
+import Store from './pages/Store';
 import Settings from './pages/Settings';
 import Premium from './pages/Premium';
 import Codex from './pages/Code';
@@ -27,7 +28,8 @@ const AuthenticatedApp = () => (
     <Route path="/reset-password" element={<ResetPassword />} />
     <Route path="/download" element={<DownloadPage />} />
     <Route path="/d" element={<DownloadRedirect />} />
-    <Route path="/" element={<Chat />} />
+    <Route path="/" element={<Store />} />
+    <Route path="/chat" element={<Chat />} />
     <Route path="/settings" element={<Settings />} />
     <Route path="/premium" element={<Premium />} />
     <Route path="/codex" element={<Codex />} />
