@@ -51,7 +51,8 @@ export default function Register() {
     }
     setLoading(true);
     try {
-      await api.auth.register({ email, password, name: fullName });
+      const user = await api.auth.register({ email: email.trim(), password, name: fullName.trim() });
+      if (!user) throw new Error("Account could not be created");
       window.location.href = returnTo;
     } catch (err) {
       setError(err.message || "Registration failed");

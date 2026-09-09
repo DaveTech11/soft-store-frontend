@@ -86,7 +86,7 @@ const auth = {
     } catch (error) {
       const users = read(STORAGE.users);
       const user = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
-      if (!user) throw error.status === 404 ? new Error("No local account found. Start the app backend or create an account here.") : error;
+      if (!user) throw (error.status === 404 || error.status >= 500 || !error.status) ? new Error("No account found. Please sign up first or check your server.") : error;
       const safe = { ...user }; delete safe.password;
       write(STORAGE.currentUser, safe); return safe;
     }
@@ -97,7 +97,7 @@ const auth = {
       const user = data.user || data;
       write(STORAGE.currentUser, user); return user;
     } catch (error) {
-      if (error.status !== 404) throw error;
+      if (error.status && error.status < 500 && error.status !== 404) throw error;
       const users = read(STORAGE.users);
       if (users.some(u => u.email.toLowerCase() === email.toLowerCase())) throw new Error("An account with this email already exists.");
       const user = { id: uid(), email: email.trim(), password, name: name?.trim() || "", role: "user", created_date: now() };
