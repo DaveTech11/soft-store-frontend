@@ -1,0 +1,14 @@
+{
+  "name": "soft-store",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Soft Store — website + Play-Store-style API, hosted as one service",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "install:all": "npm --prefix frontend install --include=dev && npm --prefix backend install",
+    "build": "npm run install:all && npm --prefix frontend run build",
+    "start": "node backend/index.js",
+    "dev:api": "npm --prefix backend start",
+    "dev:web": "npm --prefix frontend run dev"
+  }
+}

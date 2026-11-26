@@ -1,0 +1,1 @@
+export default function MessageBubble({message}){return <div className={`my-2 max-w-3xl rounded-2xl p-3 ${message?.role==="user"?"ml-auto bg-white text-black":"bg-white/5 text-white"}`}>{message?.content||message?.text||""}</div>}

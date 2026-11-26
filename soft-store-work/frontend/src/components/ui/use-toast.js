@@ -1,0 +1,1 @@
+export function toast({title,description}={}){console.log(title||"",description||"");return {id:Date.now()}}

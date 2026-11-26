@@ -1,0 +1,1 @@
+export default function TypingDots(){return <span className="text-neutral-500">•••</span>}

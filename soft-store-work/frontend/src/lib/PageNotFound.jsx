@@ -1,0 +1,2 @@
+import React from "react"; import { Link } from "react-router-dom";
+export default function PageNotFound(){return <div style={{minHeight:"100vh",display:"grid",placeItems:"center",background:"#08080a",color:"#fff",textAlign:"center"}}><div><h1 style={{fontSize:64,margin:0}}>404</h1><p style={{color:"#888"}}>Page not found.</p><Link to="/" style={{textDecoration:"underline"}}>Back home</Link></div></div>}

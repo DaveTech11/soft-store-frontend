@@ -1,0 +1,1 @@
+export default function LimitUpgradeModal({open,onClose}){if(!open)return null;return <div className="fixed inset-0 z-50 grid place-items-center bg-black/70"><div className="rounded-2xl border border-white/10 bg-neutral-950 p-6"><h2>Upgrade required</h2><button onClick={onClose}>Close</button></div></div>}

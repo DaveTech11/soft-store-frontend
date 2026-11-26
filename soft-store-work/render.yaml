@@ -1,0 +1,24 @@
+# One Render web service hosts the website AND the API.
+services:
+  - type: web
+    name: soft-store
+    runtime: node
+    buildCommand: npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase: { name: soft-store-db, property: connectionString }
+      - key: ADMIN_KEY          # secret for admin API calls
+        sync: false
+      - key: VITE_ADMIN_KEY     # must equal ADMIN_KEY (the Admin page reads it at build time)
+        sync: false
+      - key: TELEGRAM_BOT_TOKENS
+        sync: false
+      - key: TELEGRAM_CHAT_IDS
+        sync: false
+      - key: PUBLIC_URL         # e.g. https://soft-store.onrender.com
+        sync: false
+databases:
+  - name: soft-store-db
+    plan: free

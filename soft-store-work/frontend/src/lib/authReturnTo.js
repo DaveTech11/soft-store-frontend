@@ -1,0 +1,1 @@
+export function safeReturnTo(){try{const p=new URLSearchParams(location.search).get("returnTo");return p&&p.startsWith("/")&&!p.startsWith("//")?p:"/"}catch{return "/"}}
